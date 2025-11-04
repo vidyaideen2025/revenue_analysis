@@ -1,11 +1,21 @@
 """Main FastAPI application entry point."""
 
-import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.core.config import settings
 from app.api import api_router
+from app.core.exceptions import (
+    validation_exception_handler,
+    pydantic_validation_exception_handler,
+    sqlalchemy_exception_handler,
+    general_exception_handler,
+    api_exception_handler,
+    APIException,
+)
 
 
 # Create FastAPI application
@@ -17,6 +27,13 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+
+# Register exception handlers
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(ValidationError, pydantic_validation_exception_handler)
+app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
+app.add_exception_handler(APIException, api_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
 
 # Configure CORS
 app.add_middleware(
