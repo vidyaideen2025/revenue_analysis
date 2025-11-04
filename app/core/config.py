@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     DATABASE_MAX_OVERFLOW: int = 10
     DATABASE_ECHO: bool = False
     
+    # Security / Authentication
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
     # Redis (optional)
     REDIS_URL: str = "redis://localhost:6379/0"
     
@@ -45,6 +50,16 @@ class Settings(BaseSettings):
         """Ensure database URL is provided."""
         if not v:
             raise ValueError("DATABASE_URL must be set")
+        return v
+    
+    @field_validator("SECRET_KEY", mode="before")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
+        """Ensure secret key is provided and secure."""
+        if not v:
+            raise ValueError("SECRET_KEY must be set")
+        if len(v) < 32:
+            raise ValueError("SECRET_KEY must be at least 32 characters long")
         return v
 
 

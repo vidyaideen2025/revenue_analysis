@@ -3,7 +3,8 @@
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import Column, DateTime, Integer, Boolean, func
+from sqlalchemy import Column, DateTime, Boolean, func
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class TimestampMixin:
@@ -27,8 +28,8 @@ class TimestampMixin:
     )
     
     # User tracking fields (nullable - can be set when user context is available)
-    created_by = Column(Integer, nullable=True)
-    updated_by = Column(Integer, nullable=True)
+    created_by = Column(UUID(as_uuid=True), nullable=True)
+    updated_by = Column(UUID(as_uuid=True), nullable=True)
     
     # Status fields
     is_active = Column(Boolean, default=True, nullable=False)

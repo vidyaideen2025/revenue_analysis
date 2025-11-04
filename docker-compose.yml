@@ -44,6 +44,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/revenue_guardian
       REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: dev-secret-key-change-in-production-min-32-chars-long
       DEBUG: "true"
       ENVIRONMENT: development
     ports:

@@ -4,11 +4,15 @@ from fastapi import APIRouter
 
 from app.core.config import settings
 from app.routers import health
+from app.routers.public import auth as public_auth
 
 # Create main API router
 api_router = APIRouter()
 
-# Include all routers here
+# Public routers (no authentication required)
+api_router.include_router(public_auth.router, prefix="/public", tags=["Public"])
+
+# Health check routers (no authentication required)
 api_router.include_router(health.router, prefix="/health", tags=["Health"])
 
 # Add more routers as you create them:
