@@ -16,6 +16,16 @@ class UserRole(int, Enum):
     CXO = 3
 
 
+class Department(int, Enum):
+    """User departments."""
+    IT = 1
+    FINANCE = 2
+    OPERATIONS = 3
+    AUDIT = 4
+    HR = 5
+    SALES = 6
+
+
 class User(Base, TimestampMixin):
     """User model for authentication and role-based access control."""
     
@@ -26,6 +36,7 @@ class User(Base, TimestampMixin):
     username = Column(String(100), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=True)
+    department = Column(Integer, nullable=True)
     role = Column(Integer, nullable=False, default=UserRole.OPERATIONS.value)
     
     

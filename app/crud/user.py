@@ -52,16 +52,70 @@ class UserRepository:
     async def get_all(
         db: AsyncSession,
         skip: int = 0,
-        limit: int = 100
+        limit: int = 100,
+        search: str | None = None,
+        role: int | None = None,
+        is_active: bool | None = None
     ) -> list[User]:
-        """Get all users with pagination."""
-        result = await db.execute(
-            select(User)
-            .where(User.is_deleted == False)
-            .offset(skip)
-            .limit(limit)
-        )
+        """Get all users with pagination, search, and filtering."""
+        from sqlalchemy import or_, func
+        
+        query = select(User).where(User.is_deleted == False)
+        
+        # Search filter
+        if search:
+            search_filter = or_(
+                User.email.ilike(f"%{search}%"),
+                User.username.ilike(f"%{search}%"),
+                User.full_name.ilike(f"%{search}%")
+            )
+            query = query.where(search_filter)
+        
+        # Role filter
+        if role is not None:
+            query = query.where(User.role == role)
+        
+        # Active status filter
+        if is_active is not None:
+            query = query.where(User.is_active == is_active)
+        
+        # Pagination
+        query = query.offset(skip).limit(limit)
+        
+        result = await db.execute(query)
         return list(result.scalars().all())
+    
+    @staticmethod
+    async def count(
+        db: AsyncSession,
+        search: str | None = None,
+        role: int | None = None,
+        is_active: bool | None = None
+    ) -> int:
+        """Count users with same filters as get_all."""
+        from sqlalchemy import or_, func
+        
+        query = select(func.count(User.id)).where(User.is_deleted == False)
+        
+        # Search filter
+        if search:
+            search_filter = or_(
+                User.email.ilike(f"%{search}%"),
+                User.username.ilike(f"%{search}%"),
+                User.full_name.ilike(f"%{search}%")
+            )
+            query = query.where(search_filter)
+        
+        # Role filter
+        if role is not None:
+            query = query.where(User.role == role)
+        
+        # Active status filter
+        if is_active is not None:
+            query = query.where(User.is_active == is_active)
+        
+        result = await db.execute(query)
+        return result.scalar_one()
     
     @staticmethod
     async def create(db: AsyncSession, user_in: UserCreate, created_by: UUID | None = None) -> User:
@@ -73,6 +127,7 @@ class UserRepository:
             username=user_in.username,
             password_hash=password_hash,
             full_name=user_in.full_name,
+            department=user_in.department,
             role=user_in.role,
             created_by=created_by,
         )

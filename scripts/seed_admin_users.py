@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import AsyncSessionLocal
 from app.crud.user import user_repo
 from app.schemas.user import UserCreate
-from app.models.user import UserRole
+from app.models.user import UserRole, Department
 
 
 async def seed_admin_users():
@@ -25,6 +25,7 @@ async def seed_admin_users():
             "username": "admin",
             "password": "Admin@123",
             "full_name": "Primary Administrator",
+            "department": Department.IT,
             "role": UserRole.ADMIN
         },
         {
@@ -32,6 +33,7 @@ async def seed_admin_users():
             "username": "superadmin",
             "password": "Super@123",
             "full_name": "Super Administrator",
+            "department": Department.IT,
             "role": UserRole.ADMIN
         },
         {
@@ -39,6 +41,7 @@ async def seed_admin_users():
             "username": "sysadmin",
             "password": "SysAdmin@123",
             "full_name": "System Administrator",
+            "department": Department.IT,
             "role": UserRole.ADMIN
         },
     ]
