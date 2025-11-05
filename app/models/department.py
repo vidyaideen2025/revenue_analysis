@@ -21,8 +21,8 @@ class Department(Base, TimestampMixin):
     is_active = Column(Boolean, default=True, nullable=False)
     is_deleted = Column(Boolean, default=False, nullable=False)
     
-    # Relationship to users
-    users = relationship("User", back_populates="department_rel")
+    # Relationship to users (lazy evaluation to avoid circular import)
+    users = relationship("User", back_populates="department_rel", lazy="select")
     
     def __repr__(self) -> str:
         return f"<Department(id={self.id}, code={self.code}, name={self.name})>"
