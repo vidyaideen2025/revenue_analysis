@@ -22,7 +22,7 @@ class Department(Base, TimestampMixin):
     is_deleted = Column(Boolean, default=False, nullable=False)
     
     # Relationship to users
-    users = relationship("User", back_populates="department")
+    users = relationship("User", back_populates="department_rel")
     
     def __repr__(self) -> str:
         return f"<Department(id={self.id}, code={self.code}, name={self.name})>"
