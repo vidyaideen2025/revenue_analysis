@@ -72,7 +72,34 @@ async def general_exception_handler(
 ) -> JSONResponse:
     """
     Handle all other uncaught exceptions.
+    
+    Automatically logs errors to audit log system.
     """
+    # Log the error to audit log
+    try:
+        from app.core.database import AsyncSessionLocal
+        from app.utils.audit import log_error, determine_severity
+        
+        async with AsyncSessionLocal() as db:
+            # Extract user ID if authenticated
+            user_id = getattr(request.state, "user_id", None)
+            
+            # Determine severity
+            severity = determine_severity(exc)
+            
+            # Log the error
+            await log_error(
+                db=db,
+                error=exc,
+                description=f"Unhandled exception: {exc.__class__.__name__}",
+                user_id=user_id,
+                request=request,
+                severity=severity
+            )
+    except Exception as log_err:
+        # Don't fail the request if logging fails
+        print(f"Failed to log error to audit log: {log_err}")
+    
     return APIResponse.internal_error(
         message="An unexpected error occurred",
         data={"error": str(exc)}

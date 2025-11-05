@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.core.response import APIResponse
 from app.services.auth import auth_service
 from app.schemas.user import LoginRequest
+from app.utils.audit import log_login
 
 
 router = APIRouter(tags=["Public - Authentication"])
@@ -18,6 +19,7 @@ router = APIRouter(tags=["Public - Authentication"])
 @router.post("/login", response_model=None)
 async def login(
     login_data: LoginRequest,
+    request: Request,
     db: Annotated[AsyncSession, Depends(get_db)]
 ) -> JSONResponse:
     """
@@ -50,10 +52,28 @@ async def login(
     )
     
     if not user:
+        # Log failed login attempt
+        await log_login(
+            db=db,
+            user_id=None,
+            email=login_data.email,
+            request=request,
+            success=False
+        )
+        
         return APIResponse.unauthorized(
             message="Incorrect email or password",
             data={"detail": "Authentication failed"}
         )
+    
+    # Log successful login
+    await log_login(
+        db=db,
+        user_id=user.id,
+        email=user.email,
+        request=request,
+        success=True
+    )
     
     # Create access token
     access_token = auth_service.create_user_token(user)
