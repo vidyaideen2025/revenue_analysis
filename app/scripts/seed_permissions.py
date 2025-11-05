@@ -3,14 +3,14 @@
 import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import async_session_maker
+from app.core.database import AsyncSessionLocal
 from app.models.permission import Permission, Role, SYSTEM_PERMISSIONS, SYSTEM_ROLES
 
 
 async def seed_permissions_and_roles():
     """Seed system permissions and roles."""
     
-    async with async_session_maker() as db:
+    async with AsyncSessionLocal() as db:
         try:
             print("🌱 Starting permission and role seeding...")
             
