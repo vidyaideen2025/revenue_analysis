@@ -26,7 +26,8 @@ async def list_users(
     limit: int = Query(100, ge=1, le=100, description="Maximum number of records to return"),
     search: str | None = Query(None, description="Search in email, username, full_name"),
     role: int | None = Query(None, description="Filter by role (1=ADMIN, 2=OPERATIONS, 3=CXO)"),
-    is_active: bool | None = Query(None, description="Filter by active status")
+    is_active: bool | None = Query(None, description="Filter by active status"),
+    department_id: UUID | None = Query(None, description="Filter by department ID")
 ) -> JSONResponse:
     """
     List all users with pagination, search, and filtering.
@@ -52,7 +53,8 @@ async def list_users(
         limit=limit,
         search=search,
         role=role,
-        is_active=is_active
+        is_active=is_active,
+        department_id=department_id
     )
     
     # Get total count with same filters
@@ -60,12 +62,28 @@ async def list_users(
         db=db,
         search=search,
         role=role,
-        is_active=is_active
+        is_active=is_active,
+        department_id=department_id
     )
     
-    # Convert to schemas
+    # Convert to schemas with department info
     from app.schemas.user import User as UserSchema
-    user_list = [UserSchema.model_validate(user) for user in users]
+    user_list = []
+    for user in users:
+        user_dict = {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "full_name": user.full_name,
+            "department_id": user.department_id,
+            "role": user.role,
+            "is_active": user.is_active,
+            "created_at": user.created_at,
+            "updated_at": user.updated_at,
+            "department_name": user.department_rel.name if user.department_rel else None,
+            "department_code": user.department_rel.code if user.department_rel else None
+        }
+        user_list.append(UserSchema(**user_dict))
     
     return APIResponse.success(
         message="Users retrieved successfully",
@@ -166,12 +184,40 @@ async def create_user(
             data={"detail": f"A user with username {user_in.username} already exists", "field": "username"}
         )
     
+    # Validate department if provided
+    if user_in.department_id:
+        from app.crud.department import department_repo
+        department = await department_repo.get_by_id(db, user_in.department_id)
+        if not department:
+            return APIResponse.bad_request(
+                message="Invalid department",
+                data={"detail": "Department not found", "field": "department_id"}
+            )
+        if not department.is_active:
+            return APIResponse.bad_request(
+                message="Invalid department",
+                data={"detail": "Department is not active", "field": "department_id"}
+            )
+    
     # Create user
     created_user = await user_repo.create(db, user_in, created_by=current_user.id)
     
-    # Convert to schema
+    # Convert to schema with department info
     from app.schemas.user import User as UserSchema
-    user_schema = UserSchema.model_validate(created_user)
+    user_dict = {
+        "id": created_user.id,
+        "email": created_user.email,
+        "username": created_user.username,
+        "full_name": created_user.full_name,
+        "department_id": created_user.department_id,
+        "role": created_user.role,
+        "is_active": created_user.is_active,
+        "created_at": created_user.created_at,
+        "updated_at": created_user.updated_at,
+        "department_name": created_user.department_rel.name if created_user.department_rel else None,
+        "department_code": created_user.department_rel.code if created_user.department_rel else None
+    }
+    user_schema = UserSchema(**user_dict)
     
     return APIResponse.created(
         message="User created successfully",

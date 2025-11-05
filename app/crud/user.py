@@ -55,12 +55,17 @@ class UserRepository:
         limit: int = 100,
         search: str | None = None,
         role: int | None = None,
-        is_active: bool | None = None
+        is_active: bool | None = None,
+        department_id: UUID | None = None
     ) -> list[User]:
         """Get all users with pagination, search, and filtering."""
         from sqlalchemy import or_, func
+        from sqlalchemy.orm import joinedload
         
         query = select(User).where(User.is_deleted == False)
+        
+        # Eager load department relationship
+        query = query.options(joinedload(User.department_rel))
         
         # Search filter
         if search:
@@ -79,6 +84,10 @@ class UserRepository:
         if is_active is not None:
             query = query.where(User.is_active == is_active)
         
+        # Department filter
+        if department_id is not None:
+            query = query.where(User.department_id == department_id)
+        
         # Pagination
         query = query.offset(skip).limit(limit)
         
@@ -90,7 +99,8 @@ class UserRepository:
         db: AsyncSession,
         search: str | None = None,
         role: int | None = None,
-        is_active: bool | None = None
+        is_active: bool | None = None,
+        department_id: UUID | None = None
     ) -> int:
         """Count users with same filters as get_all."""
         from sqlalchemy import or_, func
@@ -114,12 +124,18 @@ class UserRepository:
         if is_active is not None:
             query = query.where(User.is_active == is_active)
         
+        # Department filter
+        if department_id is not None:
+            query = query.where(User.department_id == department_id)
+        
         result = await db.execute(query)
         return result.scalar_one()
     
     @staticmethod
     async def create(db: AsyncSession, user_in: UserCreate, created_by: UUID | None = None) -> User:
         """Create a new user."""
+        from sqlalchemy.orm import joinedload
+        
         password_hash = get_password_hash(user_in.password)
         
         db_user = User(
@@ -127,14 +143,13 @@ class UserRepository:
             username=user_in.username,
             password_hash=password_hash,
             full_name=user_in.full_name,
-            department=user_in.department,
+            department_id=user_in.department_id,
             role=user_in.role,
-            created_by=created_by,
         )
         
         db.add(db_user)
         await db.commit()
-        await db.refresh(db_user)
+        await db.refresh(db_user, ["department_rel"])
         
         return db_user
     

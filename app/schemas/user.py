@@ -4,7 +4,7 @@ from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
-from app.models.user import UserRole, Department
+from app.models.user import UserRole
 
 
 class UserBase(BaseModel):
@@ -12,7 +12,7 @@ class UserBase(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=100)
     full_name: str = Field(..., min_length=1, max_length=255)
-    department: Department | None = None
+    department_id: UUID | None = Field(None, description="Department UUID")
     role: UserRole = UserRole.OPERATIONS
 
 
@@ -26,25 +26,31 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     username: str | None = Field(None, min_length=3, max_length=100)
     full_name: str | None = Field(None, min_length=1, max_length=255)
-    department: Department | None = None
+    department_id: UUID | None = None
     role: UserRole | None = None
     is_active: bool | None = None
     password: str | None = Field(None, min_length=8, max_length=100)
 
 
-class UserInDB(UserBase):
+class UserInDB(BaseModel):
     """Schema for user data stored in database."""
     model_config = ConfigDict(from_attributes=True)
     
     id: UUID
+    email: EmailStr
+    username: str
+    full_name: str
+    department_id: UUID | None
+    role: UserRole
     is_active: bool
     created_at: datetime
     updated_at: datetime
 
 
 class User(UserInDB):
-    """Schema for user response (public view)."""
-    pass
+    """Schema for user response with department information."""
+    department_name: str | None = Field(None, description="Department name")
+    department_code: str | None = Field(None, description="Department code")
 
 
 class Token(BaseModel):

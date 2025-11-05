@@ -7,6 +7,7 @@ from app.routers import health
 from app.routers.public import auth as public_auth
 from app.routers import users
 from app.routers import audit_logs
+from app.routers import departments
 
 
 def create_api_router() -> APIRouter:
@@ -21,6 +22,7 @@ def create_api_router() -> APIRouter:
     
     # Protected routes (authentication required)
     router.include_router(users.router, prefix="/users", tags=["Users"])
+    router.include_router(departments.router, prefix="/departments", tags=["Departments"])
     router.include_router(audit_logs.router, prefix="/audit_logs", tags=["Audit Logs"])
     
     return router

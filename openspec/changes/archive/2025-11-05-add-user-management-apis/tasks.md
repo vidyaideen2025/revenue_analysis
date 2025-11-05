@@ -379,9 +379,221 @@
 - [ ] Add best practices
 - [ ] Include troubleshooting tips
 
+## 13. Department Model and Schema (4 tasks)
+
+### Task 13.1: Create department model
+- [ ] Create `app/models/department.py`
+- [ ] Define Department model with UUID primary key
+- [ ] Add fields: name, code, description, is_active, is_deleted
+- [ ] Add TimestampMixin for created_at, updated_at
+- [ ] Add unique constraint on code
+- [ ] Add indexes on code and name
+
+### Task 13.2: Create department schemas
+- [ ] Create `app/schemas/department.py`
+- [ ] Create DepartmentBase schema (name, code, description, is_active)
+- [ ] Create DepartmentCreate schema
+- [ ] Create DepartmentUpdate schema (all fields optional)
+- [ ] Create Department schema (includes id, timestamps)
+- [ ] Create DepartmentListResponse schema (items, total, skip, limit)
+
+### Task 13.3: Create department repository
+- [ ] Create `app/crud/department.py`
+- [ ] Implement get_all() with search and filtering
+- [ ] Implement get_by_id()
+- [ ] Implement get_by_code() for uniqueness check
+- [ ] Implement create()
+- [ ] Implement update()
+- [ ] Implement delete() (soft delete)
+- [ ] Implement count() for pagination
+
+### Task 13.4: Update user model for department relationship
+- [ ] Update `app/models/user.py`
+- [ ] Change department from Integer to UUID (ForeignKey)
+- [ ] Add relationship to Department model
+- [ ] Remove Department enum (will be migrated)
+- [ ] Update `app/schemas/user.py` to use UUID for department_id
+
+## 14. Department Router and Endpoints (7 tasks)
+
+### Task 14.1: Create department router file
+- [ ] Create `app/routers/departments.py`
+- [ ] Import required dependencies
+- [ ] Create APIRouter with tags=["Departments"]
+- [ ] Add docstring explaining admin-only access
+
+### Task 14.2: Register department router
+- [ ] Open `app/api.py`
+- [ ] Import departments router
+- [ ] Add router with prefix="/departments"
+- [ ] Apply require_admin dependency
+
+### Task 14.3: Create list departments endpoint
+- [ ] Create `GET /api/v1/departments/` endpoint
+- [ ] Add pagination parameters (skip, limit)
+- [ ] Add search parameter (search by name/code)
+- [ ] Add is_active filter parameter
+- [ ] Return DepartmentListResponse
+- [ ] Add comprehensive documentation
+
+### Task 14.4: Create get department endpoint
+- [ ] Create `GET /api/v1/departments/{id}` endpoint
+- [ ] Fetch department by ID
+- [ ] Return 404 if not found or deleted
+- [ ] Include user count for the department
+- [ ] Return Department schema
+
+### Task 14.5: Create department endpoint
+- [ ] Create `POST /api/v1/departments/` endpoint
+- [ ] Accept DepartmentCreate schema
+- [ ] Validate code uniqueness
+- [ ] Set is_active=true by default
+- [ ] Return 201 Created with department data
+- [ ] Add validation error handling
+
+### Task 14.6: Update department endpoint
+- [ ] Create `PATCH /api/v1/departments/{id}` endpoint
+- [ ] Accept DepartmentUpdate schema
+- [ ] Validate code uniqueness if code is updated
+- [ ] Update only provided fields
+- [ ] Return 404 if not found
+- [ ] Return updated department
+
+### Task 14.7: Delete department endpoint
+- [ ] Create `DELETE /api/v1/departments/{id}` endpoint
+- [ ] Check if department has assigned users
+- [ ] Return 400 if users exist with user count
+- [ ] Perform soft delete (is_deleted=true, is_active=false)
+- [ ] Return 200 with success message
+- [ ] Add documentation
+
+## 15. Database Migration (5 tasks)
+
+### Task 15.1: Create departments table migration
+- [ ] Create Alembic migration file
+- [ ] Add departments table with all fields
+- [ ] Add unique constraint on code
+- [ ] Add indexes on code and name
+- [ ] Add is_deleted and is_active columns
+
+### Task 15.2: Seed initial departments
+- [ ] Create data migration to seed departments
+- [ ] Add IT (Information Technology)
+- [ ] Add FINANCE (Finance)
+- [ ] Add OPERATIONS (Operations)
+- [ ] Add AUDIT (Audit)
+- [ ] Add HR (Human Resources)
+- [ ] Add SALES (Sales)
+- [ ] Set all as active with descriptions
+
+### Task 15.3: Migrate user.department field
+- [ ] Add department_id UUID column to users table
+- [ ] Map existing integer values to department UUIDs
+- [ ] Populate department_id for all users
+- [ ] Verify all users have valid department references
+
+### Task 15.4: Add foreign key constraint
+- [ ] Add foreign key from users.department_id to departments.id
+- [ ] Set ON DELETE RESTRICT (prevent deleting departments with users)
+- [ ] Remove old department integer column
+- [ ] Test foreign key constraint
+
+### Task 15.5: Test migration rollback
+- [ ] Test migration upgrade
+- [ ] Test migration downgrade
+- [ ] Verify data integrity after rollback
+- [ ] Document migration process
+
+## 16. Department-User Integration (4 tasks)
+
+### Task 16.1: Update user creation to use departments
+- [ ] Update user creation endpoint to accept department_id (UUID)
+- [ ] Validate department exists and is active
+- [ ] Return 400 if invalid department
+- [ ] Update user creation documentation
+
+### Task 16.2: Update user update to use departments
+- [ ] Update user update endpoint to accept department_id
+- [ ] Validate department if provided
+- [ ] Allow null department (optional)
+- [ ] Update user update documentation
+
+### Task 16.3: Include department in user responses
+- [ ] Update user schemas to include department info
+- [ ] Add department name and code to user response
+- [ ] Handle null department gracefully
+- [ ] Update user list to show department names
+
+### Task 16.4: Add department filter to user list
+- [ ] Add department_id filter to user list endpoint
+- [ ] Filter users by department
+- [ ] Update user list documentation
+- [ ] Test filtering by department
+
+## 17. Testing Department Management (6 tasks)
+
+### Task 17.1: Test department CRUD operations
+- [ ] Test create department
+- [ ] Test list departments with pagination
+- [ ] Test get department by ID
+- [ ] Test update department
+- [ ] Test soft delete department
+
+### Task 17.2: Test department validation
+- [ ] Test duplicate code validation
+- [ ] Test required fields validation
+- [ ] Test code uniqueness (case-insensitive)
+- [ ] Test invalid status values
+
+### Task 17.3: Test department-user relationship
+- [ ] Test assigning user to department
+- [ ] Test invalid department assignment
+- [ ] Test inactive department assignment
+- [ ] Test filtering users by department
+
+### Task 17.4: Test department deletion with users
+- [ ] Test deleting department without users (should succeed)
+- [ ] Test deleting department with users (should fail)
+- [ ] Test error message includes user count
+- [ ] Test soft-deleted departments are excluded
+
+### Task 17.5: Test department authorization
+- [ ] Test admin access (should succeed)
+- [ ] Test non-admin access (should fail with 403)
+- [ ] Test unauthenticated access (should fail with 401)
+
+### Task 17.6: Test department migration
+- [ ] Test departments table creation
+- [ ] Test initial department seeding
+- [ ] Test user.department migration
+- [ ] Test foreign key constraint
+- [ ] Test migration rollback
+
+## 18. Documentation for Departments (3 tasks)
+
+### Task 18.1: Update API documentation
+- [ ] Add department endpoints to Swagger/ReDoc
+- [ ] Add request/response examples
+- [ ] Document all query parameters
+- [ ] Add error response examples
+
+### Task 18.2: Create department management guide
+- [ ] Document department creation workflow
+- [ ] Explain department-user relationship
+- [ ] Document migration from enum to table
+- [ ] Add troubleshooting tips
+
+### Task 18.3: Update README
+- [ ] Add department management section
+- [ ] Document department endpoints
+- [ ] Add curl examples
+- [ ] Document migration process
+
 ## Summary
 
-**Total Tasks**: 64
+**Total Tasks**: 173
+
+### User Management (64 tasks)
 - Router Setup: 3 tasks
 - List Users: 5 tasks
 - Get User: 4 tasks (includes self-access control)
@@ -394,3 +606,11 @@
 - Error Handling: 4 tasks
 - Testing: 7 tasks
 - Documentation: 4 tasks
+
+### Department Management (109 tasks)
+- Department Model and Schema: 4 tasks
+- Department Router and Endpoints: 7 tasks
+- Database Migration: 5 tasks
+- Department-User Integration: 4 tasks
+- Testing Department Management: 6 tasks
+- Documentation for Departments: 3 tasks
