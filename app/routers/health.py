@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.response import APIResponse
 
 
-router = APIRouter(prefix="/health", tags=["Health"])
+router = APIRouter(tags=["Health"])
 
 
 @router.get("/")

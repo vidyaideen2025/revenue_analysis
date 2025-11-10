@@ -1,0 +1,948 @@
+{
+	"info": {
+		"_postman_id": "revenue-guardian-api-2025",
+		"name": "Revenue Guardian API",
+		"description": "Complete API collection for Revenue Guardian - Fine Data Reconciliation System with RBAC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "revenue-guardian"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.data.access_token);",
+									"    console.log('Token saved:', response.data.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@revenueguardian.com\",\n    \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"login"
+							]
+						},
+						"description": "Login with email and password. Returns JWT token that is automatically saved to collection variables."
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Operations User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.data.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"operations@revenueguardian.com\",\n    \"password\": \"Operations@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"login"
+							]
+						},
+						"description": "Login as Operations user for testing reconciliation features"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - CXO User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.data.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"cxo@revenueguardian.com\",\n    \"password\": \"CXO@123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/public/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"public",
+								"login"
+							]
+						},
+						"description": "Login as CXO user for testing dashboard and reports"
+					},
+					"response": []
+				}
+			],
+			"description": "Public authentication endpoints - no token required"
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Basic Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health",
+								""
+							]
+						},
+						"description": "Check if the application is running"
+					},
+					"response": []
+				},
+				{
+					"name": "Database Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health/db",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health",
+								"db"
+							]
+						},
+						"description": "Check database connectivity"
+					},
+					"response": []
+				}
+			],
+			"description": "Health check endpoints for monitoring"
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/?skip=0&limit=100",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								},
+								{
+									"key": "search",
+									"value": "john",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "2",
+									"description": "1=ADMIN, 2=OPERATIONS, 3=CXO",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "department_id",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List all users with pagination and filters (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000",
+									"description": "User UUID"
+								}
+							]
+						},
+						"description": "Get specific user details. Admin can view any user, non-admin can only view their own profile."
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newuser@example.com\",\n    \"username\": \"newuser\",\n    \"full_name\": \"New User\",\n    \"password\": \"SecurePass@123\",\n    \"role\": 2,\n    \"department_id\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						},
+						"description": "Create a new user (Admin only). Role: 1=ADMIN, 2=OPERATIONS, 3=CXO"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"full_name\": \"Updated Name\",\n    \"role\": 3,\n    \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Update user information (Admin only). All fields are optional."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"is_active\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:user_id/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":user_id",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Activate or deactivate a user (Admin only). Admin cannot deactivate themselves."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:user_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":user_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Soft delete a user (Admin only). Admin cannot delete themselves."
+					},
+					"response": []
+				}
+			],
+			"description": "User management endpoints (Admin only, except GET by ID which supports self-access)"
+		},
+		{
+			"name": "Department Management",
+			"item": [
+				{
+					"name": "List Departments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/departments/?skip=0&limit=100",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								},
+								{
+									"key": "search",
+									"value": "finance",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List all departments with pagination (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Department by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/departments/:department_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								":department_id"
+							],
+							"variable": [
+								{
+									"key": "department_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Get specific department details including user count (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Information Technology\",\n    \"code\": \"IT\",\n    \"description\": \"Manages technology infrastructure and systems\",\n    \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/departments/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								""
+							]
+						},
+						"description": "Create a new department (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Department",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Updated description\",\n    \"is_active\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/departments/:department_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								":department_id"
+							],
+							"variable": [
+								{
+									"key": "department_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Update department information (Admin only). All fields are optional."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Department",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/departments/:department_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								":department_id"
+							],
+							"variable": [
+								{
+									"key": "department_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Soft delete a department (Admin only). Cannot delete departments with assigned users."
+					},
+					"response": []
+				}
+			],
+			"description": "Department management endpoints (Admin only)"
+		},
+		{
+			"name": "RBAC - Permissions & Roles",
+			"item": [
+				{
+					"name": "Get My Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rbac/me/permissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rbac",
+								"me",
+								"permissions"
+							]
+						},
+						"description": "Get current user's permissions. Use this in frontend to show/hide UI elements based on permissions."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rbac/permissions?skip=0&limit=100",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rbac",
+								"permissions"
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								},
+								{
+									"key": "category",
+									"value": "reconciliation",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List all available permissions (Admin only). Used for creating/editing roles."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rbac/roles?skip=0&limit=100&include_system=true",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rbac",
+								"roles"
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "100"
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"disabled": true
+								},
+								{
+									"key": "include_system",
+									"value": "true"
+								}
+							]
+						},
+						"description": "List all roles including system roles (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rbac/roles/:role_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rbac",
+								"roles",
+								":role_id"
+							],
+							"variable": [
+								{
+									"key": "role_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Get specific role with its permissions (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Manager\",\n    \"code\": \"MANAGER\",\n    \"description\": \"Team manager with limited admin access\",\n    \"permission_ids\": [\n        \"uuid-permission-1\",\n        \"uuid-permission-2\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rbac/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rbac",
+								"roles"
+							]
+						},
+						"description": "Create a new custom role with permissions (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Senior Manager\",\n    \"description\": \"Updated description\",\n    \"is_active\": true,\n    \"permission_ids\": [\n        \"uuid-permission-1\",\n        \"uuid-permission-2\",\n        \"uuid-permission-3\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/rbac/roles/:role_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rbac",
+								"roles",
+								":role_id"
+							],
+							"variable": [
+								{
+									"key": "role_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Update role information and permissions (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rbac/roles/:role_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rbac",
+								"roles",
+								":role_id"
+							],
+							"variable": [
+								{
+									"key": "role_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Delete a custom role (Admin only). System roles (ADMIN, CXO, OPERATIONS) cannot be deleted."
+					},
+					"response": []
+				}
+			],
+			"description": "Role-Based Access Control (RBAC) endpoints for permissions and roles management"
+		},
+		{
+			"name": "Audit Logs",
+			"item": [
+				{
+					"name": "List Audit Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/audit_logs/?skip=0&limit=50",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"audit_logs",
+								""
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "date_from",
+									"value": "2025-03-01T00:00:00Z",
+									"disabled": true
+								},
+								{
+									"key": "date_to",
+									"value": "2025-03-31T23:59:59Z",
+									"disabled": true
+								},
+								{
+									"key": "user_id",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "action_type",
+									"value": "user_create",
+									"disabled": true
+								},
+								{
+									"key": "resource_type",
+									"value": "user",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "success",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List audit logs with filtering and pagination (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Error Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/audit_logs/errors?skip=0&limit=50",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"audit_logs",
+								"errors"
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "severity",
+									"value": "error",
+									"disabled": true
+								},
+								{
+									"key": "error_type",
+									"value": "validation_error",
+									"disabled": true
+								},
+								{
+									"key": "date_from",
+									"value": "2025-03-01T00:00:00Z",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List error logs only with efficient pagination (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Audit Log by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/audit_logs/:audit_log_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"audit_logs",
+								":audit_log_id"
+							],
+							"variable": [
+								{
+									"key": "audit_log_id",
+									"value": "550e8400-e29b-41d4-a716-446655440000"
+								}
+							]
+						},
+						"description": "Get specific audit log details including full metadata (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Audit logs endpoints for tracking system activities and errors (Admin only)"
+		}
+	]
+}

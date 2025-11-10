@@ -16,7 +16,7 @@ from app.schemas.department import (
 )
 
 
-router = APIRouter(prefix="/departments", tags=["Departments"])
+router = APIRouter(tags=["Departments"])
 
 
 @router.get("/", response_model=DepartmentListResponse)

@@ -14,7 +14,7 @@ from app.crud.audit_log import audit_log_repo
 from app.schemas.audit_log import AuditLog, AuditLogListResponse, AuditLogFilter, ErrorLogFilter
 
 
-router = APIRouter(prefix="/audit-logs", tags=["Audit Logs"])
+router = APIRouter(tags=["Audit Logs"])
 
 
 @router.get("/", response_model=AuditLogListResponse)
