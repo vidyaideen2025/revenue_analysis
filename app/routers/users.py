@@ -88,7 +88,7 @@ async def list_users(
     return APIResponse.success(
         message="Users retrieved successfully",
         data={
-            "items": [user.model_dump() for user in user_list],
+            "items": [user.model_dump(mode='json') for user in user_list],
             "total": total,
             "skip": skip,
             "limit": limit
@@ -138,7 +138,7 @@ async def get_user(
     
     return APIResponse.success(
         message="User retrieved successfully",
-        data=user_schema.model_dump()
+        data=user_schema.model_dump(mode='json')
     )
 
 
@@ -221,7 +221,7 @@ async def create_user(
     
     return APIResponse.created(
         message="User created successfully",
-        data=user_schema.model_dump()
+        data=user_schema.model_dump(mode='json')
     )
 
 
@@ -283,7 +283,7 @@ async def update_user(
     
     return APIResponse.success(
         message="User updated successfully",
-        data=user_schema.model_dump()
+        data=user_schema.model_dump(mode='json')
     )
 
 
@@ -337,7 +337,7 @@ async def update_user_status(
     
     return APIResponse.success(
         message=f"User {action} successfully",
-        data=user_schema.model_dump()
+        data=user_schema.model_dump(mode='json')
     )
 
 
